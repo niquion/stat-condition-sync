@@ -5,12 +5,30 @@ Hooks.on("updateActor", async (actor, changes) => {
     if (!foundry.utils.hasProperty(changes, "system.attributes")) return;
 
     const STAT_CONFIG = {
-      bono_atq: { condition: "ATK+", icon: "worlds/campana-de-los-magnificos/arvys%20icons/estados/ataque%2B.png" },
-      bono_hab: { condition: "HAB+", icon: "worlds/campana-de-los-magnificos/arvys%20icons/estados/hab%2B.png" },
-      bono_vel: { condition: "VEL+", icon: "worlds/campana-de-los-magnificos/arvys%20icons/estados/vel%2B.png" },
-      bono_def: { condition: "DEF+", icon: "worlds/campana-de-los-magnificos/arvys%20icons/estados/def%2B.png" },
-      bono_res: { condition: "RES+", icon: "worlds/campana-de-los-magnificos/arvys%20icons/estados/res%2B.png" },
-      bono_sue: { condition: "SUE+", icon: "worlds/campana-de-los-magnificos/arvys%20icons/estados/SUE%2B.png" }
+      bono_atq: {
+        positive: { condition: "ATK+", icon: "worlds/campana-de-los-magnificos/arvys%20icons/estados/ataque%2B.png" },
+        negative: { condition: "ATK-", icon: "worlds/campana-de-los-magnificos/arvys%20icons/estados/atk-.png" }
+      },
+      bono_hab: {
+        positive: { condition: "HAB+", icon: "worlds/campana-de-los-magnificos/arvys%20icons/estados/hab%2B.png" },
+        negative: { condition: "HAB-", icon: "worlds/campana-de-los-magnificos/arvys%20icons/estados/hab-.png" }
+      },
+      bono_vel: {
+        positive: { condition: "VEL+", icon: "worlds/campana-de-los-magnificos/arvys%20icons/estados/vel%2B.png" },
+        negative: { condition: "VEL-", icon: "worlds/campana-de-los-magnificos/arvys%20icons/estados/VEL-.png" }
+      },
+      bono_def: {
+        positive: { condition: "DEF+", icon: "worlds/campana-de-los-magnificos/arvys%20icons/estados/def%2B.png" },
+        negative: { condition: "DEF-", icon: "worlds/campana-de-los-magnificos/arvys%20icons/estados/def-.png" }
+      },
+      bono_res: {
+        positive: { condition: "RES+", icon: "worlds/campana-de-los-magnificos/arvys%20icons/estados/res%2B.png" },
+        negative: { condition: "RES-", icon: "worlds/campana-de-los-magnificos/arvys%20icons/estados/res-.png" }
+      },
+      bono_sue: {
+        positive: { condition: "SUE+", icon: "worlds/campana-de-los-magnificos/arvys%20icons/estados/SUE%2B.png" },
+        negative: { condition: "SUE-", icon: "worlds/campana-de-los-magnificos/arvys%20icons/estados/sue-.png" }
+      }
     };
 
     const tokens = actor.getActiveTokens(true);
@@ -24,21 +42,18 @@ Hooks.on("updateActor", async (actor, changes) => {
 
         let value = attr.value ?? 0;
 
-        if (value <= 0) {
-          if (game.cub.hasCondition(cfg.condition, token)) {
-            await game.cub.removeCondition(cfg.condition, token);
-          }
-        } else {
-          if (!game.cub.hasCondition(cfg.condition, token)) {
-            await game.cub.addCondition(cfg.condition, token);
+        for (let type of ["positive", "negative"]) {
+          let cond = cfg[type].condition;
+          if (game.cub.hasCondition(cond, token)) {
+            await game.cub.removeCondition(cond, token);
           }
         }
 
-        if (typeof EffectCounter !== "undefined") {
-          let counter = EffectCounter.findCounter(token.document, cfg.icon);
-          if (counter) {
-            await counter.setValue(value);
-          }
+        if (value > 0) {
+          await applyCondition(token, cfg.positive, value);
+        } 
+        else if (value < 0) {
+          await applyCondition(token, cfg.negative, Math.abs(value));
         }
       }
     }
@@ -47,3 +62,17 @@ Hooks.on("updateActor", async (actor, changes) => {
     console.error("Stat Condition Sync | Error:", err);
   }
 });
+
+async function applyCondition(token, cfg, value) {
+
+  if (!game.cub.hasCondition(cfg.condition, token)) {
+    await game.cub.addCondition(cfg.condition, token);
+  }
+
+  if (typeof EffectCounter !== "undefined") {
+    let counter = EffectCounter.findCounter(token.document, cfg.icon);
+    if (counter) {
+      await counter.setValue(value);
+    }
+  }
+}
