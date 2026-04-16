@@ -4,9 +4,7 @@
   "description": "",
   "version": "1.0.0",
   "authors": [
-    {
-      "name": "niquion"
-    }
+    { "name": "niquion" }
   ],
   "esmodules": ["stat-sync.js"],
   "compatibility": {
