@@ -20,5 +20,7 @@
         "type": "module"
       }
     ]
-  }
+  },
+  "manifest": "https://raw.githubusercontent.com/niquion/stat-condition-sync/main/module.json",
+  "download": "https://github.com/niquion/stat-condition-sync/archive/refs/heads/main.zip"
 }
