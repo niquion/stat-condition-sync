@@ -71,6 +71,8 @@ Hooks.on("updateActor", async (actor, changes) => {
         if (desiredState !== "none") {
           await game.cub.addCondition(cfg[desiredState].condition, token);
           await updateCounter(token, cfg[desiredState], Math.abs(value));
+
+          token.refresh();
         }
       }
     }
