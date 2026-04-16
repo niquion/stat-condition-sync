@@ -19,6 +19,6 @@
       }
     ]
   },
-  "manifest": "https://raw.githubusercontent.com/niquion/stat-condition-sync/main/module.json",
-  "download": "https://github.com/niquion/stat-condition-sync/archive/refs/heads/main.zip"
+  "manifest": "https://raw.githubusercontent.com/niquion/stat-condition-sync/master/module.json",
+  "download": "https://github.com/niquion/stat-condition-sync/archive/refs/heads/master.zip"
 }
