@@ -9,16 +9,16 @@
     }
   ],
   "esmodules": ["stat-sync.js"],
-  "minimumCoreVersion": "10",
-  "compatibleCoreVersion": "12",
-  "scripts": [],
-  "styles": [],
-  "packs": [],
-  "system": [],
-  "dependencies": [
-    {
-      "id": "condition-lab-triggler",
-      "type": "module"
-    }
-  ]
+  "compatibility": {
+    "minimum": "10",
+    "verified": "12"
+  },
+  "relationships": {
+    "requires": [
+      {
+        "id": "condition-lab-triggler",
+        "type": "module"
+      }
+    ]
+  }
 }
