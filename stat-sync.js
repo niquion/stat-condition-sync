@@ -1,3 +1,18 @@
+Hooks.once("ready", async () => {
+  const icons = [
+    "worlds/campana-de-los-magnificos/arvys%20icons/estados/atk-.png",
+    "worlds/campana-de-los-magnificos/arvys%20icons/estados/hab-.png",
+    "worlds/campana-de-los-magnificos/arvys%20icons/estados/VEL-.png",
+    "worlds/campana-de-los-magnificos/arvys%20icons/estados/def-.png",
+    "worlds/campana-de-los-magnificos/arvys%20icons/estados/res-.png",
+    "worlds/campana-de-los-magnificos/arvys%20icons/estados/sue-.png"
+  ];
+
+  for (let path of icons) {
+    await loadTexture(path);
+  }
+});
+
 Hooks.on("updateActor", async (actor, changes) => {
   try {
     if (!actor?.isOwner) return;
@@ -72,7 +87,8 @@ Hooks.on("updateActor", async (actor, changes) => {
           await game.cub.addCondition(cfg[desiredState].condition, token);
           await updateCounter(token, cfg[desiredState], Math.abs(value));
 
-          token.refresh();
+          await new Promise(r => setTimeout(r, 50));
+          token.document.object?.draw();
         }
       }
     }
