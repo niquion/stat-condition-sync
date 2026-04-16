@@ -1,7 +1,6 @@
 Hooks.on("updateActor", async (actor, changes) => {
   try {
     if (!actor?.isOwner) return;
-
     if (!foundry.utils.hasProperty(changes, "system.attributes")) return;
 
     const STAT_CONFIG = {
@@ -42,18 +41,36 @@ Hooks.on("updateActor", async (actor, changes) => {
 
         let value = attr.value ?? 0;
 
-        for (let type of ["positive", "negative"]) {
-          let cond = cfg[type].condition;
-          if (game.cub.hasCondition(cond, token)) {
-            await game.cub.removeCondition(cond, token);
+        let desiredState =
+          value > 0 ? "positive" :
+          value < 0 ? "negative" :
+          "none";
+
+        let hasPositive = game.cub.hasCondition(cfg.positive.condition, token);
+        let hasNegative = game.cub.hasCondition(cfg.negative.condition, token);
+
+        let currentState =
+          hasPositive ? "positive" :
+          hasNegative ? "negative" :
+          "none";
+
+        if (currentState === desiredState) {
+          if (desiredState !== "none") {
+            await updateCounter(token, cfg[desiredState], Math.abs(value));
           }
+          continue;
+        }
+        
+        if (hasPositive) {
+          await game.cub.removeCondition(cfg.positive.condition, token);
+        }
+        if (hasNegative) {
+          await game.cub.removeCondition(cfg.negative.condition, token);
         }
 
-        if (value > 0) {
-          await applyCondition(token, cfg.positive, value);
-        } 
-        else if (value < 0) {
-          await applyCondition(token, cfg.negative, Math.abs(value));
+        if (desiredState !== "none") {
+          await game.cub.addCondition(cfg[desiredState].condition, token);
+          await updateCounter(token, cfg[desiredState], Math.abs(value));
         }
       }
     }
@@ -63,16 +80,11 @@ Hooks.on("updateActor", async (actor, changes) => {
   }
 });
 
-async function applyCondition(token, cfg, value) {
+async function updateCounter(token, cfg, value) {
+  if (typeof EffectCounter === "undefined") return;
 
-  if (!game.cub.hasCondition(cfg.condition, token)) {
-    await game.cub.addCondition(cfg.condition, token);
-  }
-
-  if (typeof EffectCounter !== "undefined") {
-    let counter = EffectCounter.findCounter(token.document, cfg.icon);
-    if (counter) {
-      await counter.setValue(value);
-    }
+  let counter = EffectCounter.findCounter(token.document, cfg.icon);
+  if (counter) {
+    await counter.setValue(value);
   }
 }
